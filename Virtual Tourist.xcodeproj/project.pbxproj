@@ -202,6 +202,7 @@
 				TargetAttributes = {
 					0AD115D81DD156DE00251D96 = {
 						CreatedOnToolsVersion = 8.1;
+						DevelopmentTeam = K9T59C7GGA;
 						ProvisioningStyle = Automatic;
 					};
 					0AD115EF1DD156DF00251D96 = {
@@ -422,6 +423,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = K9T59C7GGA;
 				INFOPLIST_FILE = "Virtual Tourist/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peterkhotpanya.Virtual-Tourist";
@@ -434,6 +436,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = K9T59C7GGA;
 				INFOPLIST_FILE = "Virtual Tourist/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peterkhotpanya.Virtual-Tourist";

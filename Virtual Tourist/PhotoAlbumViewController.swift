@@ -20,7 +20,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        presentPin(,)
+        configureMap(mapView: mapView)
+        
+        //TODO: use selected pin values
+        presentPin(latitude: 34.0522, longitude: 118.2437)
         
         // Register cell classes
         self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
@@ -70,11 +73,18 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         
+
         let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
         let region = MKCoordinateRegion(center: coordinate, span: span)
         
         mapView.setRegion(region, animated: true)
         mapView.addAnnotation(annotation)
+    }
+    
+    func configureMap(mapView: MKMapView){
+        mapView.isZoomEnabled = false
+        mapView.isScrollEnabled = false
+        mapView.isPitchEnabled = false
     }
     
     // MARK: UICollectionViewDataSource

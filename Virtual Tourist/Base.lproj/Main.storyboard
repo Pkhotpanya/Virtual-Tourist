@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Aay-gM-Ucl">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -25,10 +25,10 @@
             </objects>
             <point key="canvasLocation" x="-435" y="471"/>
         </scene>
-        <!--Virutal Tourist-->
+        <!--Virtual Tourist-->
         <scene sceneID="Ra0-oz-77U">
             <objects>
-                <viewController id="Xrb-29-NtE" customClass="TravelLocationsMapViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Xrb-29-NtE" userLabel="Virtual Tourist" customClass="TravelLocationsMapViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="iAo-xH-xSh"/>
                         <viewControllerLayoutGuide type="bottom" id="dcr-k4-9fS"/>
@@ -39,12 +39,15 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="VMS-Ak-Pre">
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <gestureRecognizers/>
                                 <connections>
                                     <outlet property="delegate" destination="Xrb-29-NtE" id="QhT-g0-39O"/>
+                                    <outletCollection property="gestureRecognizers" destination="6Bl-54-6og" appends="YES" id="wZI-KT-2tC"/>
                                 </connections>
                             </mapView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="VMS-Ak-Pre" firstAttribute="centerX" secondItem="MJL-Ta-L2p" secondAttribute="centerX" id="E96-I8-9jp"/>
                             <constraint firstItem="dcr-k4-9fS" firstAttribute="top" secondItem="VMS-Ak-Pre" secondAttribute="bottom" id="GBs-is-3va"/>
@@ -53,21 +56,20 @@
                             <constraint firstItem="VMS-Ak-Pre" firstAttribute="leading" secondItem="MJL-Ta-L2p" secondAttribute="leading" id="wsO-WI-rd0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Virutal Tourist" id="aT7-Vc-ONb">
+                    <navigationItem key="navigationItem" title="Virutal Tourist" id="aT7-Vc-ONb" userLabel="Virtual Tourist">
                         <barButtonItem key="backBarButtonItem" title="OK" id="hIr-73-DKC"/>
-                        <barButtonItem key="rightBarButtonItem" title="Edit" id="3Me-pn-pUU">
-                            <connections>
-                                <action selector="rightNavigationButtonIsPressed:" destination="Xrb-29-NtE" id="VSa-aS-9St"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="mapView" destination="VMS-Ak-Pre" id="fqu-kK-YVu"/>
-                        <outlet property="rightNavigationButton" destination="3Me-pn-pUU" id="xdh-qZ-qTk"/>
                         <segue destination="bbo-2G-LPq" kind="show" identifier="photoAlbumViewSegue" id="zJP-x5-4R4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="L3G-5G-Lte" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="6Bl-54-6og">
+                    <connections>
+                        <action selector="longPressTriggered:" destination="Xrb-29-NtE" id="W5Z-6x-sIj"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="592.79999999999995" y="470.91454272863569"/>
         </scene>
@@ -140,7 +142,7 @@
                                 </constraints>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Fyq-0l-gLT"/>
-                                    <barButtonItem title="Item" id="DjZ-dc-hKl" userLabel="New Collection">
+                                    <barButtonItem title="New Collection" id="DjZ-dc-hKl" userLabel="New Collection">
                                         <connections>
                                             <action selector="centerToolbarButtonIsPressed:" destination="bbo-2G-LPq" id="5sE-AM-wQu"/>
                                         </connections>

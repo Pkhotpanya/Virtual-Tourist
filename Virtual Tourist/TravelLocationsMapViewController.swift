@@ -11,23 +11,11 @@ import MapKit
 
 class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
 
-    @IBOutlet weak var rightNavigationButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    
-    @IBAction func rightNavigationButtonIsPressed(_ sender: Any) {
-        
+        configureMap(mapView: mapView)
     }
     
     //MARK: MKMapViewDelegate
@@ -47,6 +35,12 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         return pinView
     }
     
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        //TODO: store the coordinates for PhotoAlbumViewController
+        
+        performSegue(withIdentifier: "photoAlbumViewSegue", sender: nil)
+    }
+
     func addPin(latitude: Double, longitude: Double){
         let lat = CLLocationDegrees(latitude)
         let long = CLLocationDegrees(longitude)
@@ -54,6 +48,28 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
+    }
+    
+    func configureMap(mapView: MKMapView){
+        mapView.isZoomEnabled = true
+        mapView.isScrollEnabled = true
+        mapView.isPitchEnabled = true
+    }
+    
+    //MARK: Long press gesture recognizer
+    @IBAction func longPressTriggered(_ sender: Any) {
+        let longPressGesture = sender as? UILongPressGestureRecognizer
+        switch (longPressGesture?.state)! as UIGestureRecognizerState {
+        case UIGestureRecognizerState.began:
+            let point = longPressGesture?.location(in: mapView)
+            let coordinate = mapView.convert(point!, toCoordinateFrom: mapView)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coordinate
+            mapView.addAnnotation(annotation)
+        default:
+            return
+        }
+        
     }
 
 }
