@@ -56,7 +56,7 @@
                             <constraint firstItem="VMS-Ak-Pre" firstAttribute="leading" secondItem="MJL-Ta-L2p" secondAttribute="leading" id="wsO-WI-rd0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Virutal Tourist" id="aT7-Vc-ONb" userLabel="Virtual Tourist">
+                    <navigationItem key="navigationItem" title="Virtual Tourist" id="aT7-Vc-ONb" userLabel="Virtual Tourist">
                         <barButtonItem key="backBarButtonItem" title="OK" id="hIr-73-DKC"/>
                     </navigationItem>
                     <connections>
@@ -114,15 +114,24 @@
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="kFj-L4-ErD">
                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                         </imageView>
+                                                        <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="oz6-hu-vcQ">
+                                                            <rect key="frame" x="7" y="7" width="37" height="37"/>
+                                                        </activityIndicatorView>
                                                     </subviews>
                                                 </view>
+                                                <color key="backgroundColor" red="0.003010978457" green="0.70323187109999996" blue="0.89525973800000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
+                                                    <constraint firstItem="oz6-hu-vcQ" firstAttribute="top" secondItem="bzF-2t-2bl" secondAttribute="top" constant="7" id="8Ce-Ur-Rbj"/>
+                                                    <constraint firstAttribute="trailing" secondItem="oz6-hu-vcQ" secondAttribute="trailing" constant="6" id="8dK-eZ-VXh"/>
                                                     <constraint firstItem="kFj-L4-ErD" firstAttribute="top" secondItem="bzF-2t-2bl" secondAttribute="top" id="BZg-er-yEa"/>
                                                     <constraint firstAttribute="bottom" secondItem="kFj-L4-ErD" secondAttribute="bottom" id="Cn2-uh-iK9"/>
+                                                    <constraint firstItem="oz6-hu-vcQ" firstAttribute="leading" secondItem="bzF-2t-2bl" secondAttribute="leading" constant="7" id="FRz-ag-xnm"/>
                                                     <constraint firstItem="kFj-L4-ErD" firstAttribute="leading" secondItem="bzF-2t-2bl" secondAttribute="leading" id="ZeP-6S-8cF"/>
                                                     <constraint firstAttribute="trailing" secondItem="kFj-L4-ErD" secondAttribute="trailing" id="aI3-kt-dxJ"/>
+                                                    <constraint firstAttribute="bottom" secondItem="oz6-hu-vcQ" secondAttribute="bottom" constant="6" id="q6k-yd-fBh"/>
                                                 </constraints>
                                                 <connections>
+                                                    <outlet property="activityIndicatorView" destination="oz6-hu-vcQ" id="lsD-A4-E6h"/>
                                                     <outlet property="photoAlbumImageView" destination="kFj-L4-ErD" id="2P1-af-gNs"/>
                                                 </connections>
                                             </collectionViewCell>

@@ -5,6 +5,7 @@
 //  Created by Peter Khotpanya on 11/8/16.
 //  Copyright © 2016 Peter Khotpanya. All rights reserved.
 //
+// Pin a location and tap it to segue to PhotoAlbumViewController.
 
 import UIKit
 import MapKit
