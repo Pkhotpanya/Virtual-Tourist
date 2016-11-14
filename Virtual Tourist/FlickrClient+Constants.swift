@@ -11,7 +11,9 @@ import UIKit
 extension FlickrClient {
 
     struct Constants {
-        //static let
+        //Set up a Flickr developer account at https://www.flickr.com/services/api/
+        static let flickrApiKey = MyFlickrDeveloperAccount.apiKey //Your Flickr key
+        static let flickrApiSecreet = MyFlickrDeveloperAccount.apiSecret //Your Flickr secret
     }
     
 //    enum Keys: String {
