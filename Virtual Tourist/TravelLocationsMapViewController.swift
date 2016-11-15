@@ -19,6 +19,10 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         configureMap(mapView: mapView)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
     //MARK: MKMapViewDelegate
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseId = "pin"

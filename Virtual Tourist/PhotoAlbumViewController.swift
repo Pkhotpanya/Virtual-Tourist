@@ -38,6 +38,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         collectionViewFlowLayout.minimumInteritemSpacing = space
         collectionViewFlowLayout.minimumLineSpacing = space
         collectionViewFlowLayout.itemSize = CGSize(width: dimension, height: dimension)
+        
+        testGettingPhoto()
     }
     
     //MARK: center toolbar button
@@ -91,7 +93,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     //MARK: UICollectionViewDataSource
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 12
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -99,7 +101,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoAlbumCollectionViewCell", for: indexPath) as! PhotoAlbumCollectionViewCell
         
         //TODO: show photo from data source
-//        cell.photoAlbumImageView.image = UIImage(named: "AppIcon")
+        cell.photoAlbumImageView.image = image
         cell.activityIndicatorView.startAnimating()
         return cell
     }
@@ -170,6 +172,18 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     func hasSelectedItems() -> Bool{
         return (collectionView.indexPathsForSelectedItems?.count)! > 0
+    }
+    
+    var image: UIImage?
+    func testGettingPhoto(){
+        FlickrClient.shared.getPhotos(lat: 34.0522, lon: 118.2437, perPage: 1, page: 2, completion: {(results, errorMessage) in
+            let firstPhoto = results[0]
+            self.image = FlickrClient.shared.getPhotoImage(
+                id: firstPhoto[FlickrClient.PhotoElement.id.rawValue] as! String,
+                server: firstPhoto[FlickrClient.PhotoElement.server.rawValue] as! String,
+                farm: firstPhoto[FlickrClient.PhotoElement.farm.rawValue] as! NSNumber,
+                secret: firstPhoto[FlickrClient.PhotoElement.secret.rawValue] as! String)
+        })
     }
 }
 
