@@ -9,6 +9,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
 
@@ -17,10 +18,7 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureMap(mapView: mapView)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        getAllPinsFromStack()
     }
     
     //MARK: MKMapViewDelegate
@@ -41,15 +39,22 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        //TODO: store the coordinates for PhotoAlbumViewController
-        
-        performSegue(withIdentifier: "photoAlbumViewSegue", sender: nil)
+        performSegue(withIdentifier: "photoAlbumViewSegue", sender: view.annotation)
+    }
+    
+    //MARK: Map support
+    func populateMapView(pins: [Pin]){
+        var annotations = [MKAnnotation]()
+        for pin in pins {
+            let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coordinate
+            annotations.append(annotation)
+        }
+        mapView.addAnnotations(annotations)
     }
 
-    func addPin(latitude: Double, longitude: Double){
-        let lat = CLLocationDegrees(latitude)
-        let long = CLLocationDegrees(longitude)
-        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+    func addAnnotationToMap(coordinate: CLLocationCoordinate2D){
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
@@ -61,20 +66,55 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         mapView.isPitchEnabled = true
     }
     
-    //MARK: Long press gesture recognizer
+    //MARK: Map point function 
     @IBAction func longPressTriggered(_ sender: Any) {
         let longPressGesture = sender as? UILongPressGestureRecognizer
         switch (longPressGesture?.state)! as UIGestureRecognizerState {
         case UIGestureRecognizerState.began:
             let point = longPressGesture?.location(in: mapView)
             let coordinate = mapView.convert(point!, toCoordinateFrom: mapView)
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = coordinate
-            mapView.addAnnotation(annotation)
+            
+            addAnnotationToMap(coordinate: coordinate)
+            addNewPinToStack(coordinate: coordinate)
         default:
             return
         }
         
+    }
+    
+    //MARK: Core Data - Pin support
+    func getAllPinsFromStack(){
+        let stack = getStack()
+        let pins = stack.getAllPinsFromContext()
+        populateMapView(pins: pins)
+    }
+    
+    func addNewPinToStack(coordinate: CLLocationCoordinate2D){
+        let stack = getStack()
+        stack.addPinToContext(latitude: coordinate.latitude, longitude: coordinate.longitude)
+    }
+    
+    func getPinFromStack(coordinate: CLLocationCoordinate2D) -> Pin{
+        let stack = getStack()
+        let pins = stack.getPinFromContext(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        return (pins.first)!
+    }
+    
+    func getStack() -> CoreDataStack{
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        let stack = appDelegate?.coreDataStack
+        return stack!
+    }
+    
+    //MARK: PhotoAlbumViewController segue
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "photoAlbumViewSegue" {
+            let destinationViewController = segue.destination as? PhotoAlbumViewController
+            let annotation = sender as? MKAnnotation
+            let coordinate = annotation?.coordinate
+            let pin = getPinFromStack(coordinate: coordinate!)
+            destinationViewController?.pin = pin
+        }
     }
 
 }

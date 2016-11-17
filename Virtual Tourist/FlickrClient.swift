@@ -36,6 +36,7 @@ class FlickrClient {
         case secret
     }
     
+    //MARK: Photo support
     func getPhotos(lat:Double, lon:Double, perPage: Int, page: Int, completion: @escaping (_ results: [Dictionary<String, Any>], _ errorMessage: String) -> Void){
         let url = String(format: "%@?method=%@&api_key=%@&lat=%@&lon=%@&per_page=%@&page=%@&format=json&nojsoncallback=1", Constant.apiURL , Constant.photoSearchMethod, Constant.apiKey, String(lat), String(lon), String(perPage), String(page))
         let request = URLRequest(url: NSURL(string: url)! as URL)

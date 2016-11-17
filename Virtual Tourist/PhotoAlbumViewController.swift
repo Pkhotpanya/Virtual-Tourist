@@ -9,6 +9,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
 
@@ -16,6 +17,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var collectionViewFlowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var centerToolbarButton: UIBarButtonItem!
+    var pin: Pin?
     
     enum ButtonNames: String{
         case newCollection = "New Collection"
@@ -26,23 +28,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         super.viewDidLoad()
         configureMap(mapView: mapView)
         configureCollection(collectionView: collectionView)
-        
-        //TODO: use selected pin values
-        presentPin(latitude: 34.0522, longitude: 118.2437)
-        
-        // FlowLayout
-        let space: CGFloat = 3.0
-        let dimension = (view.frame.size.width - (2 * space)) / 3.0
-        
-        //Note: This is a sample implementation. You will need to tinker with it to find a layout that works in both landscape and portrait. Hint: consider using view.frame.size.height in addition to view.frame.size.width.
-        collectionViewFlowLayout.minimumInteritemSpacing = space
-        collectionViewFlowLayout.minimumLineSpacing = space
-        collectionViewFlowLayout.itemSize = CGSize(width: dimension, height: dimension)
-        
-        testGettingPhoto()
+        presentPin(pin: pin!)
     }
     
-    //MARK: center toolbar button
+    //MARK: Center toolbar button action
     @IBAction func centerToolbarButtonIsPressed(_ sender: Any) {
         if centerToolbarButton.title == ButtonNames.newCollection.rawValue {
             getNewCollection()
@@ -68,15 +57,11 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return pinView
     }
     
-    func presentPin(latitude: Double, longitude: Double){
-        let lat = CLLocationDegrees(latitude)
-        let long = CLLocationDegrees(longitude)
-        
-        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-        
+    //MARK: Map support
+    func presentPin(pin: Pin){
+        let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
-        
 
         let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
         let region = MKCoordinateRegion(center: coordinate, span: span)
@@ -127,12 +112,22 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }
     }
     
+    //MARK: Colletion support
     func configureCollection(collectionView: UICollectionView){
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = true
+        
+        // FlowLayout
+        let space: CGFloat = 3.0
+        let dimension = (view.frame.size.width - (2 * space)) / 3.0
+        
+        //Note: This is a sample implementation. You will need to tinker with it to find a layout that works in both landscape and portrait. Hint: consider using view.frame.size.height in addition to view.frame.size.width.
+        collectionViewFlowLayout.minimumInteritemSpacing = space
+        collectionViewFlowLayout.minimumLineSpacing = space
+        collectionViewFlowLayout.itemSize = CGSize(width: dimension, height: dimension)
     }
     
-    //MARK: Toolbar button functions
+    //MARK: Toolbar support
     func getNewCollection(){
         //TODO: get new collection
         //Show activity indicator until image is loaded
@@ -174,6 +169,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return (collectionView.indexPathsForSelectedItems?.count)! > 0
     }
     
+    //MARK: Core data - photo support
+    
+    
+    //TODO: Delete test function
     var image: UIImage?
     func testGettingPhoto(){
         FlickrClient.shared.getPhotos(lat: 34.0522, lon: 118.2437, perPage: 1, page: 2, completion: {(results, errorMessage) in
@@ -185,5 +184,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                 secret: firstPhoto[FlickrClient.PhotoElement.secret.rawValue] as! String)
         })
     }
+    
 }
 
