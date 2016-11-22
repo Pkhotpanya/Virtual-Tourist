@@ -16,14 +16,6 @@ class CoreDataStack {
         let container = NSPersistentContainer(name: "Virtual_Tourist")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
@@ -36,12 +28,14 @@ class CoreDataStack {
         let pin = Pin(context: context)
         pin.latitude = latitude
         pin.longitude = longitude
+        saveContext()
     }
     
     func getPinFromContext(latitude: Double, longitude: Double) -> [Pin]{
         let context = persistentContainer.viewContext
         let request: NSFetchRequest<Pin> = Pin.fetchRequest()
-        request.predicate = NSPredicate(format: "latitude == %@, longitude == %@", latitude, longitude)
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "latitude = %@ AND longitude = %@", argumentArray: [latitude, longitude])
         do {
             let searchResults = try context.fetch(request)
             return searchResults
@@ -64,14 +58,6 @@ class CoreDataStack {
     }
     
     //MARK: Photo support
-    func addPhotoToContext(image: UIImage, url: String, pin: Pin){
-        let context = persistentContainer.viewContext
-        let photo = Photo(context: context)
-        photo.image = NSData(data: UIImageJPEGRepresentation(image, 1.0)!)
-        photo.url = url
-        photo.pin = pin
-    }
-    
     func getPhotosFromContext(pin: Pin) -> [Photo]{
         let context = persistentContainer.viewContext
         let request: NSFetchRequest<Photo> = Photo.fetchRequest()
@@ -83,6 +69,14 @@ class CoreDataStack {
             print("Error with request: \(error)")
         }
         return []
+    }
+    
+    func deletePhotosFromContext(photos: [Photo]){
+        let context = persistentContainer.viewContext
+        for photo in photos{
+            context.delete(photo)
+        }
+        saveContext()
     }
     
     //MARK: Save function

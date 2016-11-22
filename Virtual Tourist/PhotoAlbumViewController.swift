@@ -18,6 +18,9 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBOutlet weak var collectionViewFlowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var centerToolbarButton: UIBarButtonItem!
     var pin: Pin?
+    var photos = [Photo]()
+    var page: Int = 1
+    let maxCollectionSize = 21
     
     enum ButtonNames: String{
         case newCollection = "New Collection"
@@ -29,6 +32,18 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         configureMap(mapView: mapView)
         configureCollection(collectionView: collectionView)
         presentPin(pin: pin!)
+        loadPhotosForCollectionView(pin: pin!)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged(_:)), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        savePhotosToContext()
+        
+        NotificationCenter.default.removeObserver(self, name:
+            NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     }
     
     //MARK: Center toolbar button action
@@ -78,16 +93,33 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     //MARK: UICollectionViewDataSource
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return photos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // Configure the cell
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoAlbumCollectionViewCell", for: indexPath) as! PhotoAlbumCollectionViewCell
         
-        //TODO: show photo from data source
-        cell.photoAlbumImageView.image = image
+        cell.photoAlbumImageView.image = nil
         cell.activityIndicatorView.startAnimating()
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            var image: UIImage? = nil
+            if (self.photos[indexPath.item].imageData != nil) {
+                image = UIImage(data: self.photos[indexPath.item].imageData as! Data)!
+            } else {
+                let urlString = self.photos[indexPath.item].url
+                image = FlickrClient.shared.getPhotoImage(url: NSURL(string: urlString!)! as URL)
+                
+                let data = NSData(data: UIImageJPEGRepresentation(image!, 1.0)!)
+                self.photos[indexPath.item].imageData = data
+            }
+          
+            DispatchQueue.main.async {
+                cell.photoAlbumImageView.image = image
+                cell.activityIndicatorView.stopAnimating()
+            }
+        }
+
         return cell
     }
     
@@ -112,55 +144,53 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }
     }
     
-    //MARK: Colletion support
+    //MARK: Collection support
     func configureCollection(collectionView: UICollectionView){
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = true
-        
-        // FlowLayout
+ 
         let space: CGFloat = 3.0
-        let dimension = (view.frame.size.width - (2 * space)) / 3.0
-        
-        //Note: This is a sample implementation. You will need to tinker with it to find a layout that works in both landscape and portrait. Hint: consider using view.frame.size.height in addition to view.frame.size.width.
+        var dimension = (view.frame.size.width - (2 * space)) / 3.0
+        if UIApplication.shared.statusBarOrientation.isLandscape {
+            dimension = ((view.frame.size.width/2) - (2 * space)) / 3.0
+        }
         collectionViewFlowLayout.minimumInteritemSpacing = space
         collectionViewFlowLayout.minimumLineSpacing = space
         collectionViewFlowLayout.itemSize = CGSize(width: dimension, height: dimension)
     }
     
+    func orientationChanged(_ notification: NSNotification){
+        configureCollection(collectionView: collectionView)
+    }
+    
+    func loadPhotosForCollectionView(pin: Pin){
+        centerToolbarButton.isEnabled = false
+        let stackPhoto = getPhotosFromStack(pin: pin)
+        if stackPhoto.isEmpty {
+            getPhotosFromFlickr(pin: pin, page: 1)
+        } else {
+            photos = stackPhoto
+            collectionView.reloadData()
+        }
+        centerToolbarButton.isEnabled = true
+    }
+    
     //MARK: Toolbar support
     func getNewCollection(){
-        //TODO: get new collection
-        //Show activity indicator until image is loaded
-        
-        //Set data source to 0
-        
-        //get new items
-        
-        //Refresh the collection view
-        collectionView.reloadData()
+        deletePhotosFromStack(photos: photos)
+        photos.removeAll()
+        getPhotosFromFlickr(pin: pin!, page: page + 1)
     }
     
     func removeSelectedPictures(){
-        //TODO: remove selected pictures
-        
-        //Remove selected pictures
         if hasSelectedItems() {
-            //Show activity indicatore intil image is loaded
-            
-            //delete the selection from the data source
-            //Ex. removeAtIndex(indexpath.item)
-            
-            //Delete from collection
+            var photosToDelete: [Photo] = []
+            for indexpath in collectionView.indexPathsForSelectedItems!{
+                photosToDelete.append(photos.remove(at: indexpath.item))
+            }
+            deletePhotosFromStack(photos: photosToDelete)
             collectionView.deleteItems(at: collectionView.indexPathsForSelectedItems!)
-            
-            //Fetch with number given by the selection count
-        
-            //update the data source
-            
-            //update collection view
-            collectionView.insertItems(at: collectionView.indexPathsForSelectedItems!)
-            
-            //Change the button name new collection
+
             centerToolbarButton.title = ButtonNames.newCollection.rawValue
         }
     }
@@ -170,20 +200,68 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     //MARK: Core data - photo support
-    
-    
-    //TODO: Delete test function
-    var image: UIImage?
-    func testGettingPhoto(){
-        FlickrClient.shared.getPhotos(lat: 34.0522, lon: 118.2437, perPage: 1, page: 2, completion: {(results, errorMessage) in
-            let firstPhoto = results[0]
-            self.image = FlickrClient.shared.getPhotoImage(
-                id: firstPhoto[FlickrClient.PhotoElement.id.rawValue] as! String,
-                server: firstPhoto[FlickrClient.PhotoElement.server.rawValue] as! String,
-                farm: firstPhoto[FlickrClient.PhotoElement.farm.rawValue] as! NSNumber,
-                secret: firstPhoto[FlickrClient.PhotoElement.secret.rawValue] as! String)
+    func getPhotosFromFlickr(pin: Pin, page: Int){
+        FlickrClient.shared.getPhotos(latitude: pin.latitude, longitude: pin.longitude, perPage: maxCollectionSize, page: page, completion: {(results, errorMessage) in
+            if results.isEmpty {
+                let alert = UIAlertController(title: "Unable to retrieve images", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil)
+                alert.addAction(ok)
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                var photoItems = [Photo]()
+                for photoDictionary in results{
+                    let url = FlickrClient.shared.getPhotoURL(
+                        id: photoDictionary["id"] as! String,
+                        server: photoDictionary["server"] as! String,
+                        farm: photoDictionary["farm"] as! NSNumber,
+                        secret: photoDictionary["secret"] as! String)
+                    
+                    let context = self.getContext()
+                    let photo = Photo(context: context)
+                    photo.url = String(describing: url)
+                    photo.pin = pin
+                    
+                    photoItems.append(photo)
+                }
+                
+                DispatchQueue.main.async {
+                    self.photos = photoItems
+                    self.collectionView.reloadData()
+                }
+            }
         })
     }
     
+    func getPhotosFromStack(pin: Pin) -> [Photo]{
+        let stack = getStack()
+        let photos = stack.getPhotosFromContext(pin: pin)
+        return photos
+    }
+    
+    func deletePhotosFromStack(photos: [Photo]){
+        let stack = getStack()
+        stack.deletePhotosFromContext(photos: photos)
+    }
+    
+    func savePhotosToContext(){
+        let stack = getStack()
+        stack.saveContext()
+    }
+    
+    func getStack() -> CoreDataStack{
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        let stack = appDelegate?.coreDataStack
+        return stack!
+    }
+    
+    func getContext() -> NSManagedObjectContext{
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        let context = appDelegate?.coreDataStack.persistentContainer.viewContext
+        return context!
+    }
+
 }
 

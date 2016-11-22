@@ -40,6 +40,7 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         performSegue(withIdentifier: "photoAlbumViewSegue", sender: view.annotation)
+        mapView.deselectAnnotation(view.annotation, animated: true)
     }
     
     //MARK: Map support
