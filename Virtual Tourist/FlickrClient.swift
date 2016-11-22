@@ -14,8 +14,8 @@ class FlickrClient {
 
     struct Constant {
         //Set up a Flickr developer account at https://www.flickr.com/services/api/
-        static let apiKey = MyFlickrDeveloperAccount.apiKey //Your Flickr key
-        static let apiSecret = MyFlickrDeveloperAccount.apiSecret //Your Flickr secret
+        static let apiKey = "" //Your Flickr key
+        static let apiSecret = "" //Your Flickr secret
         
         static let apiURL = "https://api.flickr.com/services/rest/"
         static let photoSearchMethod = "flickr.photos.search"
