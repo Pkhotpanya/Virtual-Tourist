@@ -72,7 +72,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return pinView
     }
     
-    //MARK: Map support
+    //MARK: Map view functions
     func presentPin(pin: Pin){
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         let annotation = MKPointAnnotation()
@@ -100,6 +100,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoAlbumCollectionViewCell", for: indexPath) as! PhotoAlbumCollectionViewCell
         
         cell.photoAlbumImageView.image = nil
+        cell.photoAlbumImageView.alpha = 1.0
         cell.activityIndicatorView.startAnimating()
 
         DispatchQueue.global(qos: .userInitiated).async {
@@ -125,18 +126,18 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     //MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath)
+        let cell = collectionView.cellForItem(at: indexPath) as! PhotoAlbumCollectionViewCell
         UIView.animate(withDuration: 0.1, delay: 0, options: UIViewAnimationOptions.allowUserInteraction, animations:{
-            cell?.backgroundColor = UIColor.lightGray
+            cell.photoAlbumImageView.alpha = 0.5
         }, completion: nil)
         
         centerToolbarButton.title = ButtonNames.removeSelectedPictures.rawValue
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath)
+        let cell = collectionView.cellForItem(at: indexPath) as! PhotoAlbumCollectionViewCell
         UIView.animate(withDuration: 0.1, delay: 0, options: UIViewAnimationOptions.allowUserInteraction, animations:{
-            cell?.backgroundColor = UIColor(red: 1/255.0, green: 179/255.0, blue: 228/255.0, alpha: 1.0)
+            cell.photoAlbumImageView.alpha = 1.0
         }, completion: nil)
         
         if !hasSelectedItems() {
@@ -144,7 +145,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }
     }
     
-    //MARK: Collection support
+    //MARK: Collection helper functions
     func configureCollection(collectionView: UICollectionView){
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = true
@@ -175,7 +176,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         centerToolbarButton.isEnabled = true
     }
     
-    //MARK: Toolbar support
+    //MARK: Toolbar button functions
     func getNewCollection(){
         deletePhotosFromStack(photos: photos)
         photos.removeAll()
@@ -186,8 +187,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         if hasSelectedItems() {
             var photosToDelete: [Photo] = []
             for indexpath in collectionView.indexPathsForSelectedItems!{
-                photosToDelete.append(photos.remove(at: indexpath.item))
+                photosToDelete.append(photos[indexpath.item])
             }
+      
+            deletePhotosFromSelf(photosToDelete: photosToDelete)
             deletePhotosFromStack(photos: photosToDelete)
             collectionView.deleteItems(at: collectionView.indexPathsForSelectedItems!)
 
@@ -199,7 +202,13 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return (collectionView.indexPathsForSelectedItems?.count)! > 0
     }
     
-    //MARK: Core data - photo support
+    func deletePhotosFromSelf(photosToDelete: [Photo]){
+        for photo in photosToDelete{
+            photos.remove(at:photos.index(of: photo)!)
+        }
+    }
+    
+    //MARK: FlickrClient photo function
     func getPhotosFromFlickr(pin: Pin, page: Int){
         FlickrClient.shared.getPhotos(latitude: pin.latitude, longitude: pin.longitude, perPage: maxCollectionSize, page: page, completion: {(results, errorMessage) in
             if results.isEmpty {
@@ -235,6 +244,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         })
     }
     
+    //MARK: Core data photo functions
     func getPhotosFromStack(pin: Pin) -> [Photo]{
         let stack = getStack()
         let photos = stack.getPhotosFromContext(pin: pin)

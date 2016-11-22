@@ -43,7 +43,7 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         mapView.deselectAnnotation(view.annotation, animated: true)
     }
     
-    //MARK: Map support
+    //MARK: Map view functions
     func populateMapView(pins: [Pin]){
         var annotations = [MKAnnotation]()
         for pin in pins {
@@ -83,7 +83,7 @@ class TravelLocationsMapViewController: UIViewController, MKMapViewDelegate {
         
     }
     
-    //MARK: Core Data - Pin support
+    //MARK: Core Data pin functions
     func getAllPinsFromStack(){
         let stack = getStack()
         let pins = stack.getAllPinsFromContext()
