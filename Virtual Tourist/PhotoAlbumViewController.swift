@@ -21,6 +21,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     var photos = [Photo]()
     var page: Int = 1
     let maxCollectionSize = 21
+    var inRemoveSelectedPicturesMode: Bool = false
+    var hasSelectedItems: Bool{
+        return (collectionView.indexPathsForSelectedItems?.count)! > 0
+    }
     
     enum ButtonNames: String{
         case newCollection = "New Collection"
@@ -48,10 +52,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     //MARK: Center toolbar button action
     @IBAction func centerToolbarButtonIsPressed(_ sender: Any) {
-        if centerToolbarButton.title == ButtonNames.newCollection.rawValue {
-            getNewCollection()
-        } else if centerToolbarButton.title == ButtonNames.removeSelectedPictures.rawValue {
+        if inRemoveSelectedPicturesMode {
             removeSelectedPictures()
+        } else {
+            getNewCollection()
         }
     }
     
@@ -132,6 +136,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }, completion: nil)
         
         centerToolbarButton.title = ButtonNames.removeSelectedPictures.rawValue
+        inRemoveSelectedPicturesMode = true
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -140,8 +145,9 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
             cell.photoAlbumImageView.alpha = 1.0
         }, completion: nil)
         
-        if !hasSelectedItems() {
+        if !hasSelectedItems {
             centerToolbarButton.title = ButtonNames.newCollection.rawValue
+            inRemoveSelectedPicturesMode = false
         }
     }
     
@@ -184,7 +190,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     func removeSelectedPictures(){
-        if hasSelectedItems() {
+        if hasSelectedItems {
             var photosToDelete: [Photo] = []
             for indexpath in collectionView.indexPathsForSelectedItems!{
                 photosToDelete.append(photos[indexpath.item])
@@ -196,10 +202,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
 
             centerToolbarButton.title = ButtonNames.newCollection.rawValue
         }
-    }
-    
-    func hasSelectedItems() -> Bool{
-        return (collectionView.indexPathsForSelectedItems?.count)! > 0
     }
     
     func deletePhotosFromSelf(photosToDelete: [Photo]){
